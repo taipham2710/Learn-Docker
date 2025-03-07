@@ -360,7 +360,11 @@ Và quan trọng, client có thể chạy ở bất cứ chỗ nào, và có th�
 
 * Để xóa 1 images không còn sử dụng, ta dùng :arrow_right: `docker rmi <image_id>`
 
-:fa-exclamation-triangle: **Lưu ý:** Phải xóa các container liên quan trước khi xóa image
+### docker rmi
+
+* Để xóa 1 images không còn sử dụng, ta dùng :arrow_right: `docker rmi <image_id>`
+
+⚠️ **Lưu ý:** Phải xóa các container liên quan trước khi xóa image
 
 <p align="center">
   <img src="images\docker-rmi.png" alt="docker rmi">
@@ -385,7 +389,7 @@ Và quan trọng, client có thể chạy ở bất cứ chỗ nào, và có th�
 
 * Nếu muốn container chạy 1 process, ta có thể chỉ định lệnh khi chạy container. Ví dụ :arrow_right: `docker run ubuntu sleep 5`
 
-:fa-arrow-right: Lệnh này sẽ chạy container và lệnh `sleep 5` sẽ giữ container sống trong 5s trước khi thoát. Và sau khi thoát thì container sẽ dừng lại
+:arrow_right: Lệnh này sẽ chạy container và lệnh `sleep 5` sẽ giữ container sống trong 5s trước khi thoát. Và sau khi thoát thì container sẽ dừng lại
 
 <p align="center">
   <img src="images/sleep.png" alt="sleep">
