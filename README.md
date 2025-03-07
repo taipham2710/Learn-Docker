@@ -359,6 +359,7 @@ Và quan trọng, client có thể chạy ở bất cứ chỗ nào, và có th�
 ### docker rmi
 
 * Để xóa 1 images không còn sử dụng, ta dùng :arrow_right: `docker rmi <image_id>`
+
 :fa-exclamation-triangle: **Lưu ý:** Phải xóa các container liên quan trước khi xóa image
 
 <p align="center">
@@ -383,6 +384,7 @@ Và quan trọng, client có thể chạy ở bất cứ chỗ nào, và có th�
 ### Chạy 1 process trong docker
 
 * Nếu muốn container chạy 1 process, ta có thể chỉ định lệnh khi chạy container. Ví dụ :arrow_right: `docker run ubuntu sleep 5`
+
 :fa-arrow-right: Lệnh này sẽ chạy container và lệnh `sleep 5` sẽ giữ container sống trong 5s trước khi thoát. Và sau khi thoát thì container sẽ dừng lại
 
 <p align="center">
@@ -403,12 +405,14 @@ Và quan trọng, client có thể chạy ở bất cứ chỗ nào, và có th�
 
 :arrow_right: `docker run kodecloud/simpleweb-app`
 
-:fa-play: Container sẽ chạy ở chế độ foreground, có nghĩa là ta sẽ được gắn vào đầu ra của container. Ta sẽ thấy đầu ra của dịch vụ web trên màn hình, nhưng ta sẽ không thể làm gì khác trên terminal cho đến khi container dừng lại. Bạn có thể dừng container bằng cách nhấn Ctrl + C
+:arrow_right: Container sẽ chạy ở chế độ foreground, có nghĩa là ta sẽ được gắn vào đầu ra của container. Ta sẽ thấy đầu ra của dịch vụ web trên màn hình, nhưng ta sẽ không thể làm gì khác trên terminal cho đến khi container dừng lại. Bạn có thể dừng container bằng cách nhấn Ctrl + C
 
 ### Chạy container ở chế độ Detached
 
 * Để chạy container ở chế độ background và trở lại với terminal ngay lập tức, ta có thể sử dụng tùy chọn `-d`:
+
 :arrow_right: `docker run -d kodecloud/simpleweb-app`
+
 * Lệnh này sẽ chạy container ở chế độ detached (background), cho phép ta tiếp tục sử dụng terminal. Container sẽ tiếp tục chạy trong nền
 
 ### docker attach
