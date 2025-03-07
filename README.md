@@ -38,7 +38,7 @@
   * Không được tiếp cận vào CPU, memory, storage, ...
 * Container
   * Được xem như 1 object tồn tại trên host với 1 IP
-  * Được deploy, chạy, và xóa bỏ thông qua remote client
+  * Được deploy, chạy, và xóa bỏ thông qua remote clientgit
 * Docker engine
   * Tạo vào chạy container
   * Chạy lệnh trong chế độ daemon
@@ -287,3 +287,137 @@ Và quan trọng, client có thể chạy ở bất cứ chỗ nào, và có th�
     * Disabled = Chưa bật
   * Chạy lệnh sau trong CMD:  `systeminfo | find "Hyper-V Requirements"`
     * Nếu thấy *Virtualization Enabled In Firmware: Yes*, nghĩa là ảo hóa đã bật.
+
+## Các lệnh cơ bản trong Docker
+
+### docker run
+
+* Được sử dụng để chạy 1 container từ 1 image
+
+:fa-play:`docker run nginx`
+<p align="center">
+    <img src="images/docker-run.png" alt="docker-run">
+</p>
+
+* Nếu image nginx đã có trên máy, Docker sẽ chạy một instance của nó.
+* Nếu image chưa có, Docker sẽ tải từ Docker Hub về (chỉ lần đầu tiên). Những lần sau, nó sẽ tái sử dụng image có sẵn.
+
+### docker ps
+
+* Liệt kê tất cả các container đang chạy và 1 số thông tin cơ bản sau:
+  * ID container
+  * Tên image
+  * Trạng thái hiện tại
+  * Tên container
+
+<p align="center">
+    <img src="images/docker-ps.png" alt="docker ps">
+</p>
+
+* Docker sẽ tự động đặt tên ngẫu nhiên cho container, ví dụ như: `unruffled_shtern`
+  * Để xem tất cả container (bao gồm container đã dừng), dùng :arrow_right: `docker ps -a`
+
+<p align="center">
+    <img src="images/docker-ps--a.png" alt="docker ps -a">
+</p>
+
+### docker stop
+
+* Để dừng 1 container đang chạy, sử dụng :arrow_right: `docker stop <container_id> hoặc <container_name>`
+
+<p align="center">
+  <img src="images/docker-stop.png" alt="docker stop">
+</p>
+
+* Nếu không nhớ tên container, chạy `docker ps` để lấy danh sách
+* Sau khi chạy `docker stop`, container sẽ bị tạm dừng nhưng vẫn còn tồn tại
+  * Kiểm tra container đã dừng :arrow_right: `docker ps -a`
+
+<p align="center">
+  <img src="images/ps-a.png" alt="docker ps -a">
+</p>
+
+### docker rm
+
+* Nếu không muốn container tồn tại nữa, sử dụng :arrow_right: `docker rm <container_id>`
+
+<p align="center">
+    <img src="images\docker_rm.png" alt="docker rm">
+</p>
+
+* Điều này sẽ xóa vĩnh viễn container
+  * Kiểm tra lại bằng cách chạy `docker ps -a` để đảm bảo nó đã bị xóa vĩnh viễn
+
+### docker images
+
+* Để xem danh sách các images có trên máy ta sử dụng :arrow_right: `docker images`
+
+<p align="center">
+  <img src="images\docker-images.png" alt="docker images">
+</p>
+
+### docker rmi
+
+* Để xóa 1 images không còn sử dụng, ta dùng :arrow_right: `docker rmi <image_id>`
+:fa-exclamation-triangle: **Lưu ý:** Phải xóa các container liên quan trước khi xóa image
+
+<p align="center">
+  <img src="images\docker-rmi.png" alt="docker rmi">
+  <img src="images\rmi.png" alt="docker rmi">
+</p>
+
+### docker pull
+
+* Khi chạy `docker run ubuntu` docker sẽ kiểm tra ảnh xem có ở trên máy không, nếu không có thì docker sẽ tải ảnh từ Docker Hub. Sau đó container sẽ khởi động và ngay lập tức thoát vì trong image không có dịch vụ hay ứng dụng nào chạy
+* Nếu chỉ muốn tải ảnh mà không chạy container, hãy sử dụng :arrow_right: `docker pull ubuntu`. Lệnh này sẽ tải ảnh và lưu trữ ở máy, lần sau khi chạy `docker run ubuntu` nó sẽ không cần tải lại image.
+
+<p align="center">
+  <img src="images\docker pull.png" alt="docker pull">
+</p>
+
+### Tại sao container lại thoát ngay lập tức ?
+
+* Không giống như máy ảo, containers được thiết kế để chạy các tác vụ hoặc quá trình cụ thể, chứ không phải là hệ điều hành đầy đủ. Khi chạy một container từ image ubuntu, không có dịch vụ hay ứng dụng nào tự động chạy. Nếu không có quá trình nào đang chạy, container sẽ thoát ngay lập tức
+* Một container sẽ sống trong suốt thời gian quá trình bên trong nó đang hoạt động. Nếu không có quá trình nào chạy, như trường hợp của image `ubuntu`, container sẽ thoát ngay lập tức
+
+### Chạy 1 process trong docker
+
+* Nếu muốn container chạy 1 process, ta có thể chỉ định lệnh khi chạy container. Ví dụ :arrow_right: `docker run ubuntu sleep 5`
+:fa-arrow-right: Lệnh này sẽ chạy container và lệnh `sleep 5` sẽ giữ container sống trong 5s trước khi thoát. Và sau khi thoát thì container sẽ dừng lại
+
+<p align="center">
+  <img src="images/sleep.png" alt="sleep">
+</p>
+
+### Thực thi lệnh bên trong 1 container đang chạy
+
+* Nếu muốn chạy một lệnh trên một container đang chạy, bạn có thể sử dụng lệnh :arrow_right: `docker exec`. Ví dụ, nếu có một container Ubuntu đang chạy và ngủ trong 200 giây, ta có thể thực thi lệnh bên trong container như sau:
+
+<p align="center">
+  <img src="images/exec.png" alt="exec">
+</p> 
+
+* Lệnh này sẽ thực thi lệnh cat /etc/*release* bên trong container và in ra nội dung của tệp /etc/*release*
+
+### Chạy container ở chế độ Foreground
+
+:arrow_right: `docker run kodecloud/simpleweb-app`
+
+:fa-play: Container sẽ chạy ở chế độ foreground, có nghĩa là ta sẽ được gắn vào đầu ra của container. Ta sẽ thấy đầu ra của dịch vụ web trên màn hình, nhưng ta sẽ không thể làm gì khác trên terminal cho đến khi container dừng lại. Bạn có thể dừng container bằng cách nhấn Ctrl + C
+
+### Chạy container ở chế độ Detached
+
+* Để chạy container ở chế độ background và trở lại với terminal ngay lập tức, ta có thể sử dụng tùy chọn `-d`:
+:arrow_right: `docker run -d kodecloud/simpleweb-app`
+* Lệnh này sẽ chạy container ở chế độ detached (background), cho phép ta tiếp tục sử dụng terminal. Container sẽ tiếp tục chạy trong nền
+
+### docker attach
+
+* Lệnh docker attach giúp ta gắn lại vào terminal của một container đang chạy, để ta có thể theo dõi hoặc tương tác với nó
+
+<p align="center">
+  <img src="images/attach.png" alt="attach">
+</p> 
+
+* Sau đó, ta sẽ thấy đầu ra của container như thể bạn đang chạy nó trong chế độ foreground. Nếu nhấn `Ctrl + C`, container sẽ bị dừng. Nếu bạn chỉ muốn thoát khỏi phiên mà không dừng container, hãy nhấn tổ hợp phím: `Ctrl + P, sau đó Ctrl + Q` 
+  * Lúc này, bạn sẽ thoát khỏi phiên `attach`, nhưng container vẫn tiếp tục chạy trong nền 
