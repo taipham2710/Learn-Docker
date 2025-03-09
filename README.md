@@ -294,7 +294,7 @@ Và quan trọng, client có thể chạy ở bất cứ chỗ nào, và có th�
 
 * Được sử dụng để chạy 1 container từ 1 image
 
-:fa-play:`docker run nginx`
+:arrow_forward:`docker run nginx`
 <p align="center">
     <img src="images/docker-run.png" alt="docker-run">
 </p>
@@ -364,7 +364,7 @@ Và quan trọng, client có thể chạy ở bất cứ chỗ nào, và có th�
 
 * Để xóa 1 images không còn sử dụng, ta dùng :arrow_right: `docker rmi <image_id>`
 
-⚠️ **Lưu ý:** Phải xóa các container liên quan trước khi xóa image
+:warning: **Lưu ý:** Phải xóa các container liên quan trước khi xóa image
 
 <p align="center">
   <img src="images\docker-rmi.png" alt="docker rmi">
@@ -425,7 +425,166 @@ Và quan trọng, client có thể chạy ở bất cứ chỗ nào, và có th�
 
 <p align="center">
   <img src="images/attach.png" alt="attach">
-</p> 
+</p>
 
 * Sau đó, ta sẽ thấy đầu ra của container như thể bạn đang chạy nó trong chế độ foreground. Nếu nhấn `Ctrl + C`, container sẽ bị dừng. Nếu bạn chỉ muốn thoát khỏi phiên mà không dừng container, hãy nhấn tổ hợp phím: `Ctrl + P, sau đó Ctrl + Q` 
   * Lúc này, bạn sẽ thoát khỏi phiên `attach`, nhưng container vẫn tiếp tục chạy trong nền 
+  
+## Docker Run
+
+### Chạy container với 1 phiên bản cụ thể của ứng dụng (RUN TAG)
+
+* Khi chạy lệnh `docker run redis`, Docker mặc định sẽ chạy phiên bản mới nhất (latest: Redis version=7.4.2)
+
+<p align="center">
+  <img src="images/version-redis.png" alt="redis">
+</p>
+
+* Nếu muốn chạy phiên bản redis khác ta sử dụng :arrow_right: `docker run redis:4.0`. Trong đó, `4.0` là tag chỉ định phiên bản redis cần chạy
+* Nếu không chỉ định phiên bản nào, docker sẽ mặc định lấy `latest`
+* Để xem danh sách các phiên bản có sẵn, ta truy cập vào [docker hub](https://hub.docker.com/)
+
+### Chạy container ở chế độ tương tác (RUN STDIN)
+
+* Khi chạy một ứng dụng có nhập dữ liệu từ bàn phím, container sẽ không tự động hiển thị lời nhắc nhập.
+  * Ví dụ: Một ứng dụng yêu cầu nhập tên, nhưng khi chạy bằng Docker, nó không hiển thị gì mà chỉ nhận dữ liệu.
+  * Nguyên nhân: Docker mặc định chạy ở chế độ không tương tác (không có terminal).
+  * Giải pháp:
+    * -i (interactive): Giúp container nhận dữ liệu từ bàn phím.
+    * -t (pseudo terminal): Kết nối container với terminal của máy host.
+
+* Giả sử có một đoạn code python sau:
+
+```python
+name = input("Nhập tên của bạn: ") # nhập vào từ bàn phím
+print(f"Xin chào, {name}!")
+```
+
+**Nếu chạy trên máy thường thì sẽ in ra như sau:**
+
+```text
+Nhập tên của bạn: Tài 
+Xin chào, Tài!
+```
+
+**Các trường hợp chạy với docker:**
+
+:one: `docker run python myscript.py`
+
+```text
+
+Xin chào, !
+```
+
+:two: `docker run -i python myscript.py`
+
+```text
+Tài
+Xin chào, Tài!
+```
+
+:three: `docker run -it python myscript.py`
+
+```text
+Nhập tên của bạn: Tài
+Xin chào, Tài!
+```
+
+**Lý do:**
+
+* Docker mặc định chạy container trong chế độ không có terminal, nên nó không hiển thị đầu ra của `input()`.
+* Container vẫn có thể nhận dữ liệu, nhưng bạn không thấy lời nhắc nhập, làm bạn không biết cần nhập gì.
+
+**Tóm lại:**
+
+* Nếu ứng dụng bắt buộc phải nhập từ bàn phím như `input()` thì phải dùng `-it`
+  * Nếu không có `-i` thì sẽ không thể nhập dữ liệu
+  * Nếu không có `-t` thì chương trình có thể chạy nhưng không có không thể hiển thị lời nhắc nhập
+  * Khi dùng `-it` docker sẽ chạy như 1 terminal và chờ chúng ta nhập vào
+
+### Mở cổng (port mapping) để truy cập container từ bên ngoài (RUN -PORT)
+
+Giả sử có một ứng dụng web chạy trong Docker container, lắng nghe (listen) trên port 5000.
+Nếu chạy container bằng lệnh: `docker run mywebapp`
+Ứng dụng có thể chạy bình thường bên trong container, nhưng bạn không thể truy cập nó từ trình duyệt bên ngoài.
+**Lý do:**
+:one: Docker container có IP riêng
+
+* Mỗi docker container có 1 IP nội bộ (vd: 127.0.0.1)
+* Chỉ có thể truy cập nếu chạy trong docker host
+* Nếu mở trình duyệt trên docker host, ta có thể vào: `http://172.17.0.2:5000`
+* Nhưng nếu ta mở bằng 1 máy khác trong mạng, ta sẽ không truy cập vào được vì đây là IP nội bộ
+
+:two: Cần ánh xạ(mapping) port để có thể truy cập từ bên ngoài
+
+* Muốn truy cập từ bên ngoài, :arrow_right: cần ánh xạ port của container với port của docker host
+
+**Dùng port mapping (-p hoặc -P):**
+
+:hammer: Ánh xạ cổng cụ thể (**-p host_port:container_port**)
+
+`docker run -p 8080:80 docker/welcome-to-docker`
+
+:pushpin: Điều này có nghĩa là:
+
+* Trình duyệt truy cập vào `http://localhost:8080` sẽ chuyển hướng đến `http://172.17.0.2:80` bên trong container
+* Người dùng có thể truy cập ứng dụng từ bên ngoài `http://192.168.1.2:8080`
+
+:hammer: Tự động ánh xạ port (**-P**)
+
+* Nếu ta muốn docker chạy 1 port ngẫu nhiên trên docker host, ta có thể dùng `-P` (viết hoa)
+`docker run -P docker/welcome-to-docker`
+* Ta có thể kiểm tra docker đang chạy ở port nào bằng `docker ps`
+
+**Tại sao cần port mapping**
+
+* Giúp truy cập ứng dụng từ bên ngoài Docker container
+* Cho phép chạy nhiều container cùng 1 ứng dụng trên nhiều port khác nhau
+* Ví dụ:
+  * Một container MySQL trên port 3306 `(docker run -p 3306:3306 mysql)`
+  * Một container MySQL khác trên port 8306 `(docker run -p 8306:3306 mysql)`
+
+:x: Ta không thể ánh xạ nhiều container vào cùng 1 port trên docker host
+
+```sh
+docker run -p 3306:3306 mysql
+docker run -p 3306:3306 mysql  ❌ (sẽ bị lỗi vì port 3306 đã được sử dụng)
+```
+
+### Lưu trữ dữ liệu lâu dài (RUN - Volume mapping)
+
+* Dữ liệu bên trong container sẽ bị mất nếu container bị xóa
+* Ví dụ: nếu chạy MySQL bên trong docker, dữ liệu của database nằm trong `/var/lib/mysql` của container
+* Để giữ dữ liệu ngay cả khi container bị xóa, ta gắn 1 thư mục trên host vào thư mục trong container bằng tùy chọn `-v`
+
+```sh
+docker run -v /opt/datadỉr:/var/lib/mysql mysql
+```
+
+  * */opt/datadir*: Thư mục trên host
+  * */var/lib/mysql*: Thư mục trong container
+  * Khi container bị xóa dữ liệu vấn còn trong */opt/datadir*
+
+### Kiểm tra thông tin container (Inspect Container)
+
+* Lệnh `docker ps` chỉ hiển thị thông tin cơ bản (tên, ID, trạng thái).
+* Muốn xem chi tiết cấu hình container, ta dùng:
+
+```sh
+docker inspect <container_id>
+```
+
+:arrow_right: Kết quả trả về dạng JSON chứa trạng thái, cấu hình mạng, volume, v.v.
+
+<p align="center">
+  <img src="images/inspect.png" alt="inspect">
+</p>
+
+### Xem log container (docker logs)
+
+* Nếu container chạy detachted mode `-d` ta sẽ không thấy log của nó
+* Để xem log của 1 container: `docker logs <container_id> or <name>`
+
+<p align="center">
+  <img src="images/logs.png" alt="logs">
+</p>
